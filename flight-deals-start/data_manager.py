@@ -12,10 +12,7 @@ class DataManager:
         }
         #self.updateurl = "https://api.sheety.co/8af00e58daf0746f6934be397afa9f04/flightDeals/prices/10"
         self.updateurl = f"https://api.sheety.co/8af00e58daf0746f6934be397afa9f04/flightDeals/prices/"
-
-
         #data = self.get_sheet_data()
-
     def get_sheet_data(self):
         response = requests.get(url=self.url, headers=self.header)
         d = response.json()
@@ -48,4 +45,12 @@ class DataManager:
         response = requests.post(url=usersURL, headers=self.header, json=userdata)
         response.raise_for_status()
         return "You have been signed up!"
+
+    def get_recipients(self):
+        response = requests.get(url=usersURL, headers=self.header)
+        current_users = response.json()
+        users = []
+        for row in current_users["users"]:
+            users.append(row["email"])
+        return users
 

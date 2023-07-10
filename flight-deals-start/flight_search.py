@@ -30,22 +30,11 @@ class FlightSearch:
             self.sheet.update_row(row_id=row["id"], iata=city_IATA_code)
             try:
                 flightinfo = self.prices.get_flight_price(iata=city_IATA_code)
-                if flightinfo["price"] <= row["lowestPrice"]:
-                    print(f"hhhhh {flightinfo}")
-                    if self.prices.stops == 0:
-                        self.sms.sendSMS(body=f"Low price alert: Only £{flightinfo['price']} "
-                                         f"to fly from {flightinfo['from_airport']} "
-                                         f"to {flightinfo['destination_airport']}, "
-                                         f"on {flightinfo['departure_date']}, "
-                                         f"returning {flightinfo['return_date']}")
-                    else:
-                        self.sms.sendSMS(body=f"Low price alert: Only £{flightinfo['price']} "
-                                         f"to fly from {flightinfo['from_airport']} "
-                                         f"to {flightinfo['destination_airport']}, "
-                                         f"on {flightinfo['departure_date']}, "
-                                         f"returning {flightinfo['return_date']}"
-                                         f"with a stop over in: {flightinfo['lay_over']}")
-                elif flightinfo["price"] > row["lowestPrice"]:
+                print(flightinfo)
+                if flightinfo[0] <= row["lowestPrice"]:
+                    self.sms.sendSMS(body=flightinfo[1])
+                    self.sms.sendEMail(body=flightinfo[1])
+                elif flightinfo[0] > row["lowestPrice"]:
                     print("expensive")
                 else:
                     print("4")
