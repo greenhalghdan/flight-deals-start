@@ -9,6 +9,8 @@ class FlightData:
             "apikey": self.tequila_token,
             "Content-Type": "application/json"
         }
+        self.stopovers = 0
+        self.stops = 0
 
     def get_flight_price(self, iata):
         tomorrow_date = dt.date.today() + dt.timedelta(days=1)
@@ -24,15 +26,45 @@ class FlightData:
             "curr": "GBP",
             "nights_in_dst_from": "7",
             "nights_in_dst_to": "28",
+            "max_stopovers": self.stopovers,
         }
         response = requests.get(url=self.tequila_url, params=self.params, headers=self.header)
         response.raise_for_status()
         data = response.json()
-        trip_info = {
+        try:
+            trip_info = {
             "price": data["data"][0]["price"],
             "from_airport": data["data"][0]["route"][0]["flyFrom"],
             "destination_airport": data["data"][0]["route"][0]["flyTo"],
             "departure_date": data["data"][0]["route"][0]["local_departure"],
             "return_date": data["data"][0]["route"][1]["local_departure"],
-        }
+            }
+        except IndexError:
+            self.stops = 1
+            self.stopovers = "2"
+            self.params = {
+                "fly_from": "LON",
+                "fly_to": iata,
+                "date_from": tomorrow_date.strftime("%d/%m/%Y"),
+                "date_to": six_months_date.strftime("%d/%m/%Y"),
+                "vehicle_type": "aircraft",
+                "sort": "price",
+                "limit": "1",
+                "curr": "GBP",
+                "nights_in_dst_from": "7",
+                "nights_in_dst_to": "28",
+                "max_stopovers": self.stopovers,
+            }
+            print(self.params)
+            response = requests.get(url=self.tequila_url, params=self.params, headers=self.header)
+            response.raise_for_status()
+            data = response.json()
+            trip_info = {
+                "price": data["data"][0]["price"],
+                "from_airport": data["data"][0]["route"][0]["flyFrom"],
+                "destination_airport": data["data"][0]["route"][3]["flyTo"],
+                "departure_date": data["data"][0]["route"][0]["local_departure"],
+                "return_date": data["data"][0]["route"][3]["local_departure"],
+                "lay_over": data["data"][0]["route"][0]["flyTo"],
+            }
         return trip_info

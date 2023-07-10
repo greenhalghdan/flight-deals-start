@@ -28,10 +28,28 @@ class FlightSearch:
             data = response.json()
             city_IATA_code = data["locations"][0]["city"]["code"]
             self.sheet.update_row(row_id=row["id"], iata=city_IATA_code)
-            flightinfo = self.prices.get_flight_price(iata=city_IATA_code)
-            print(flightinfo)
-            if flightinfo["price"] <= row["lowestPrice"]:
-                self.sms.sendSMS(price=flightinfo["price"], from_airport=flightinfo["from_airport"], destination_airport=flightinfo["destination_airport"], departure_date=flightinfo["departure_date"], return_date=flightinfo["return_date"])
-            elif flightinfo["price"] > row["lowestPrice"]:
-                print("expensive")
+            try:
+                flightinfo = self.prices.get_flight_price(iata=city_IATA_code)
+                if flightinfo["price"] <= row["lowestPrice"]:
+                    print(f"hhhhh {flightinfo}")
+                    if self.prices.stops == 0:
+                        self.sms.sendSMS(body=f"Low price alert: Only £{flightinfo['price']} "
+                                         f"to fly from {flightinfo['from_airport']} "
+                                         f"to {flightinfo['destination_airport']}, "
+                                         f"on {flightinfo['departure_date']}, "
+                                         f"returning {flightinfo['return_date']}")
+                    else:
+                        self.sms.sendSMS(body=f"Low price alert: Only £{flightinfo['price']} "
+                                         f"to fly from {flightinfo['from_airport']} "
+                                         f"to {flightinfo['destination_airport']}, "
+                                         f"on {flightinfo['departure_date']}, "
+                                         f"returning {flightinfo['return_date']}"
+                                         f"with a stop over in: {flightinfo['lay_over']}")
+                elif flightinfo["price"] > row["lowestPrice"]:
+                    print("expensive")
+                else:
+                    print("4")
+            except IndexError:
+                print("No flights found")
+
 
