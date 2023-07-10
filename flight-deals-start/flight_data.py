@@ -3,7 +3,7 @@ import datetime as dt
 import os
 class FlightData:
     def __init__(self):
-        self.tequila_url = os.environ["tequila_url"]
+        self.tequila_url = "https://api.tequila.kiwi.com/v2/search"
         self.tequila_token = os.environ["tequila_token"]
         self.header = {
             "apikey": self.tequila_token,
